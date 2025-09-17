@@ -23,15 +23,13 @@ imgTestSmall = cv2.resize(imgTestBGR, (0, 0), fx=0.15, fy=0.15)
 # Convert back to RGB for face_recognition
 imgTestRGB = cv2.cvtColor(imgTestSmall, cv2.COLOR_BGR2RGB)
 
-print("imgSam shape, dtype: ", imgSamRGB.shape, imgSamRGB.dtype)
-print("imgTest shape, dtype: ", imgTestRGB.shape, imgTestRGB.dtype)
 
 # Get face location - use the RGB converted image
-faceLocation = face_recognition.face_locations(imgSamRGB)
+faceLocation = face_recognition.face_locations(imgSamSmall)[0] #Single image = get first element
+encodeSam = face_recognition.face_encodings(imgSamSmall)[0]
+#draw a rectangle for top, right, bottom, left co-ordinates on face
+cv2.rectangle(imgSamSmall, (faceLocation[3], faceLocation[0], faceLocation[1], faceLocation[2]), (255, 0, 255), 2)
 
-if not faceLocation:
-    print("No faces detected in image")
-else:
-    for face in faceLocation:
-        top, right, bottom, left = face
-        print(f"Face found at top: {top}, right: {right}, bottom: {bottom}, left: {left}")
+cv2.imshow("Sam Ndlela", imgSamSmall)
+cv2.imshow("Test Ndlela", imgTestRGB)
+cv2.waitKey(0)
