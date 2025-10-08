@@ -12,7 +12,7 @@ imgSamBGR = cv2.cvtColor(imgSam, cv2.COLOR_RGB2BGR)
 imgSamSmall = cv2.resize(imgSamBGR, (0, 0), fx=0.50, fy=0.50)
 
 # Convert back to RGB for face_recognition
-imgSamRGB = cv2.cvtColor(imgSamSmall, cv2.COLOR_BGR2RGB)
+imgSamRGB = cv2.cvtColor(imgSamSmall, cv2.COLOR_BGR2RGB) #Not in use anywhere
 
 # Import imageTest
 imgTest = face_recognition.load_image_file("Images/reference.jpg")
@@ -30,6 +30,12 @@ encodeSam = face_recognition.face_encodings(imgSamSmall)[0]
 #draw a rectangle for top, right, bottom, left co-ordinates on face
 cv2.rectangle(imgSamSmall, (faceLocation[3], faceLocation[0], faceLocation[1], faceLocation[2]), (255, 0, 255), 2)
 
+
+faceLocationTest = face_recognition.face_locations(imgTestSmall)[0] #Single image = get first element
+encodeTest = face_recognition.face_encodings(imgTestSmall)[0]
+#draw a rectangle for top, right, bottom, left co-ordinates on face
+cv2.rectangle(imgTestSmall, (faceLocationTest[3], faceLocationTest[0], faceLocationTest[1], faceLocationTest[2]), (255, 0, 255), 2)
+
 cv2.imshow("Sam Ndlela", imgSamSmall)
-cv2.imshow("Test Ndlela", imgTestRGB)
+cv2.imshow("Test Ndlela", imgTestSmall)
 cv2.waitKey(0)
