@@ -15,7 +15,7 @@ imgSamSmall = cv2.resize(imgSamBGR, (0, 0), fx=0.50, fy=0.50)
 imgSamRGB = cv2.cvtColor(imgSamSmall, cv2.COLOR_BGR2RGB) #Not in use anywhere
 
 # Import imageTest
-imgTest = face_recognition.load_image_file("Images/reference.jpg")
+imgTest = face_recognition.load_image_file("Images/samukelo.jpg")
 # Convert to BGR for OpenCV
 imgTestBGR = cv2.cvtColor(imgTest, cv2.COLOR_RGB2BGR)
 # Resize imgtest
