@@ -29,6 +29,14 @@ def findEncodings(images):
         # Convert to BGR for OpenCV operations (since OpenCV uses BGR)
         image = cv2.cvtColor(image,cv2.COLOR_RGB2BGR)
         # Resize using OpenCV (which expects BGR)
-        imgSamSmall = cv2.resize(image, (0, 0), fx=0.50, fy=0.50)
+        imgSmall = cv2.resize(image, (0, 0), fx=0.50, fy=0.50)
+        encode = face_recognition.face_encodings(imgSmall)[0]
+        encodeList.append(encode)
+
+    return encodeList
+
+encodeListKnownFaces = findEncodings(images)
+print(len(encodeListKnownFaces))
+
 
 
