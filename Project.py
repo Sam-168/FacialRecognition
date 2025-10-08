@@ -36,6 +36,13 @@ encodeTest = face_recognition.face_encodings(imgTestSmall)[0]
 #draw a rectangle for top, right, bottom, left co-ordinates on face
 cv2.rectangle(imgTestSmall, (faceLocationTest[3], faceLocationTest[0], faceLocationTest[1], faceLocationTest[2]), (255, 0, 255), 2)
 
+#list of known faces and comparing them to each other
+results = face_recognition.compare_faces([encodeSam], encodeTest)
+#finding best match to find the distance between the faces
+faceDistance = face_recognition.face_distance([encodeSam], encodeTest)
+print(results, faceDistance)
+
+cv2.putText(imgTestSmall, f'{results} {round(faceDistance[0]),2}', (50, 50), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,(0, 0, 255), 2)
 cv2.imshow("Sam Ndlela", imgSamSmall)
 cv2.imshow("Test Ndlela", imgTestSmall)
 cv2.waitKey(0)
