@@ -12,20 +12,20 @@ class FaceRecognitionService:
         self.encodings_dir = encodings_dir
         self.photos_dir = photos_dir
         
-        # Create directories if they don't exist
+    
         os.makedirs(encodings_dir, exist_ok=True)
         os.makedirs(photos_dir, exist_ok=True)
 
     def generate_encoding_from_image(self, image_array: np.ndarray) -> Tuple[bool, Optional[np.ndarray], str]:
         
         try:
-            # Convert to BGR for OpenCV operations
+            
             image_bgr = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
             
-            # Resize to improve performance
+            
             img_small = cv2.resize(image_bgr, (0, 0), fx=0.50, fy=0.50)
             
-            # Find face locations
+            
             face_locations = face_recognition.face_locations(img_small)
             
             if len(face_locations) == 0:
@@ -34,7 +34,7 @@ class FaceRecognitionService:
             if len(face_locations) > 1:
                 return False, None, f"Multiple faces detected ({len(face_locations)}). Please provide image with single face"
             
-            # Generate encoding
+            
             encodings = face_recognition.face_encodings(img_small, face_locations)
             
             if len(encodings) == 0:
@@ -49,23 +49,21 @@ class FaceRecognitionService:
 
     def save_student_encoding(self, student_id: int, encoding: np.ndarray, photo_array: np.ndarray) -> Tuple[str, str]:
         
-        # Save encoding as pickle file
+        
         encoding_path = os.path.join(self.encodings_dir, f"student_{student_id}.pkl")
         with open(encoding_path, 'wb') as f:
             pickle.dump(encoding, f)
         
-        # Save photo as JPG
+        
         photo_path = os.path.join(self.photos_dir, f"student_{student_id}.jpg")
-        # Convert RGB to BGR for OpenCV
+        
         photo_bgr = cv2.cvtColor(photo_array, cv2.COLOR_RGB2BGR)
         cv2.imwrite(photo_path, photo_bgr)
         
         return encoding_path, photo_path
 
     def load_encoding(self, encoding_path: str) -> Optional[np.ndarray]:
-        """
-        Load encoding from pickle file
-        """
+        
         try:
             if not os.path.exists(encoding_path):
                 return None
@@ -77,3 +75,47 @@ class FaceRecognitionService:
         except Exception as e:
             print(f"Error loading encoding from {encoding_path}: {e}")
             return None
+
+    def recognize_face(self, image_array: np.ndarray, known_encodings: List[Tuple[int, np.ndarray]]) -> Tuple[bool, Optional[int], float, str]:
+        
+        try:
+           
+            image_bgr = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
+            
+            
+            face_locations = face_recognition.face_locations(image_bgr)
+            
+            if len(face_locations) == 0:
+                return False, None, 0.0, "No face detected in image"
+            
+            
+            encode_current_frame = face_recognition.face_encodings(image_bgr, face_locations)
+            
+            if len(encode_current_frame) == 0:
+                return False, None, 0.0, "Could not encode detected face"
+            
+            encode_face = encode_current_frame[0]
+            
+            student_ids = [item[0] for item in known_encodings]
+            encodings_only = [item[1] for item in known_encodings]
+            
+            matches = face_recognition.compare_faces(encodings_only, encode_face, tolerance=0.6)
+            face_distances = face_recognition.face_distance(encodings_only, encode_face)
+            
+            print(f"Face distances: {face_distances}")  # Your debugging line
+            
+            match_index = np.argmin(face_distances)
+            
+            if matches[match_index]:
+                matched_student_id = student_ids[match_index]
+                
+                confidence = 1 - face_distances[match_index]
+                
+                return True, matched_student_id, float(confidence), "Face recognized"
+            else:
+                return True, None, 0.0, "Face detected but not recognized"
+                
+        except Exception as e:
+            return False, None, 0.0, f"Error during recognition: {str(e)}"
+
+    
