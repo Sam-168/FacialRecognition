@@ -46,3 +46,18 @@ class FaceRecognitionService:
             
         except Exception as e:
             return False, None, f"Error processing image: {str(e)}"
+
+    def save_student_encoding(self, student_id: int, encoding: np.ndarray, photo_array: np.ndarray) -> Tuple[str, str]:
+        
+        # Save encoding as pickle file
+        encoding_path = os.path.join(self.encodings_dir, f"student_{student_id}.pkl")
+        with open(encoding_path, 'wb') as f:
+            pickle.dump(encoding, f)
+        
+        # Save photo as JPG
+        photo_path = os.path.join(self.photos_dir, f"student_{student_id}.jpg")
+        # Convert RGB to BGR for OpenCV
+        photo_bgr = cv2.cvtColor(photo_array, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(photo_path, photo_bgr)
+        
+        return encoding_path, photo_path
