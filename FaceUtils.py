@@ -61,3 +61,19 @@ class FaceRecognitionService:
         cv2.imwrite(photo_path, photo_bgr)
         
         return encoding_path, photo_path
+
+    def load_encoding(self, encoding_path: str) -> Optional[np.ndarray]:
+        """
+        Load encoding from pickle file
+        """
+        try:
+            if not os.path.exists(encoding_path):
+                return None
+            
+            with open(encoding_path, 'rb') as f:
+                encoding = pickle.load(f)
+            return encoding
+            
+        except Exception as e:
+            print(f"Error loading encoding from {encoding_path}: {e}")
+            return None
