@@ -64,28 +64,14 @@ while True:
             print(name)
             y1, x2, y2, x1 = faceLocation
             #y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
-            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0),2)
-            cv2.rectangle(image, (x1, y2 - 35), (x2, y2), (0, 255, 0),cv2.FILLED)
+            cv2.rectangle(image, (x1, y1), (x2, y2), (255, 0, 0),2)
+            cv2.rectangle(image, (x1, y2 - 35), (x2, y2), (255, 0, 0),cv2.FILLED)
             cv2.putText(image, name, (x1 + 6, y2 -6), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     cv2.imshow('Video', image)
     cv2.waitKey(1)
 
 
 
-# faceLocation = face_recognition.face_locations(imgSamSmall)[0] #Single image = get first element
-# encodeSam = face_recognition.face_encodings(imgSamSmall)[0]
-# #draw a rectangle for top, right, bottom, left co-ordinates on face
-# cv2.rectangle(imgSamSmall, (faceLocation[3], faceLocation[0], faceLocation[1], faceLocation[2]), (255, 0, 255), 2)
-#
-#
-# faceLocationTest = face_recognition.face_locations(imgTestSmall)[0] #Single image = get first element
-# encodeTest = face_recognition.face_encodings(imgTestSmall)[0]
-# #draw a rectangle for top, right, bottom, left co-ordinates on face
-# cv2.rectangle(imgTestSmall, (faceLocationTest[3], faceLocationTest[0], faceLocationTest[1], faceLocationTest[2]), (255, 0, 255), 2)
-#
-# #list of known faces and comparing them to each other
-# results = face_recognition.compare_faces([encodeSam], encodeTest)
-# #finding best match to find the distance between the faces
-# faceDistance = face_recognition.face_distance([encodeSam], encodeTest)
+
 
 
