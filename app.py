@@ -23,3 +23,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+face_service = FaceRecognitionService()
+
+class RegisterFaceRequest(BaseModel):
+    studentId: int
+    imageBase64: str
+
+class RegisterFaceResponse(BaseModel):
+    success:bool
+    studentId: int
+    encodingPath: Optional[str] = None
+    photoPath: Optional[str] = None
+    message: str
+    error: Optional[str] = None
+
+class KnownStudent(BaseModel):
+    studentId: int
+    encodingPath: str
+
+class RecognitionFaceRequest(BaseModel):
+    imageBase64: str
+    knownEncodings: List[KnownStudent]
+
+class RecognizeFaceResponse(BaseModel):
+    success: bool
+    faceDetected: bool
+    matched: bool
+    studentId: Optional[int] = None
+    message: str
