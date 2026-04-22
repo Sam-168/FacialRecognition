@@ -52,3 +52,49 @@ class RecognizeFaceResponse(BaseModel):
     matched: bool
     studentId: Optional[int] = None
     message: str
+
+def base64_to_image(base64_string: str) -> np.ndarray:
+    
+    try:
+        # Decode base64 to bytes
+        image_bytes = base64.b64decode(base64_string)
+        
+        # Convert bytes to PIL Image
+        image = Image.open(BytesIO(image_bytes))
+        
+        # Convert to RGB if needed
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Convert PIL Image to numpy array
+        image_array = np.array(image)
+        
+        return image_array
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid image data: {str(e)}")
+
+@app.get("/")
+def root():
+    """
+    Root endpoint
+    """
+    return {
+        "service": "Face Recognition API",
+        "status": "running",
+        "version": "1.0.0"
+    }
+
+@app.get("/health")
+def health_check():
+    """
+    Health check endpoint
+    """
+    return {
+        "status": "UP",
+        "message": "Face recognition service is running",
+        "services": {
+            "opencv": "UP",
+            "face_recognition": "UP"
+        }
+    }
