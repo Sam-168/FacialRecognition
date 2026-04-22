@@ -98,3 +98,54 @@ def health_check():
             "face_recognition": "UP"
         }
     }
+
+@app.post("/register-face", response_model=RegisterFaceResponse)
+async def register_face(request: RegisterFaceRequest):
+    """
+    Register a student's face
+    
+    This endpoint is supposed to:
+    1. Receives student photo as base64
+    2. Generates face encoding
+    3. Saves encoding and photo to disk
+    4. Returns file paths
+    """
+    try:
+        
+        image_array = base64_to_image(request.imageBase64)
+        
+       
+        success, encoding, message = face_service.generate_encoding_from_image(image_array)
+        
+        if not success:
+            return RegisterFaceResponse(
+                success=False,
+                studentId=request.studentId,
+                message=message,
+                error=message
+            )
+        
+        
+        encoding_path, photo_path = face_service.save_student_encoding(
+            request.studentId,
+            encoding,
+            image_array
+        )
+        
+        return RegisterFaceResponse(
+            success=True,
+            studentId=request.studentId,
+            encodingPath=encoding_path,
+            photoPath=photo_path,
+            message="Face registered successfully"
+        )
+        
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        return RegisterFaceResponse(
+            success=False,
+            studentId=request.studentId,
+            message=f"Error processing request: {str(e)}",
+            error=str(e)
+        )
