@@ -149,3 +149,71 @@ async def register_face(request: RegisterFaceRequest):
             message=f"Error processing request: {str(e)}",
             error=str(e)
         )
+
+@app.post("/recognize-face", response_model=RecognizeFaceResponse)
+async def recognize_face(request: RecognizeFaceRequest):
+    """
+    Recognize a face against known students
+    
+    This endpoint is supposed to:
+    1. Receives photo as base64
+    2. Receives list of known student encodings
+    3. Compares photo against known encodings
+    4. Returns matched student ID if found
+    """
+    try:
+        # Convert base64 to image array
+        image_array = base64_to_image(request.imageBase64)
+        
+        # Load all known encodings
+        known_encodings = []
+        
+        for known_student in request.knownEncodings:
+            encoding = face_service.load_encoding(known_student.encodingPath)
+            
+            if encoding is not None:
+                known_encodings.append((known_student.studentId, encoding))
+        
+        if len(known_encodings) == 0:
+            return RecognizeFaceResponse(
+                success=False,
+                faceDetected=False,
+                matched=False,
+                message="No valid encodings loaded"
+            )
+        
+        # Recognize face
+        face_detected, matched_student_id, confidence, message = face_service.recognize_face(
+            image_array,
+            known_encodings
+        )
+        
+        if not face_detected:
+            return RecognizeFaceResponse(
+                success=True,
+                faceDetected=False,
+                matched=False,
+                message=message
+            )
+        
+        if matched_student_id is not None:
+            return RecognizeFaceResponse(
+                success=True,
+                faceDetected=True,
+                matched=True,
+                studentId=matched_student_id,
+                confidence=confidence,
+                message=message
+            )
+        else:
+            return RecognizeFaceResponse(
+                success=True,
+                faceDetected=True,
+                matched=False,
+                message=message
+            )
+        
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during recognition: {str(e)}")
