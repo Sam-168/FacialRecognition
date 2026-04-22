@@ -1,3 +1,4 @@
+# created by virtualenv automatically
 # Default ignored files
 /shelf/
 /workspace.xml
@@ -6,3 +7,8 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+__pycache__
+/data
+/.idea
+/.vscode
+/.venv

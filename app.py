@@ -8,7 +8,7 @@ from PIL import Image
 from io import BytesIO
 import cv2
 
-from face_utils import FaceRecognitionService
+from FaceUtils import FaceRecognitionService
 
 app = FastAPI(
     title="Face Recognition Service",
@@ -42,7 +42,7 @@ class KnownStudent(BaseModel):
     studentId: int
     encodingPath: str
 
-class RecognitionFaceRequest(BaseModel):
+class RecognizeFaceRequest(BaseModel):
     imageBase64: str
     knownEncodings: List[KnownStudent]
 
@@ -56,17 +56,17 @@ class RecognizeFaceResponse(BaseModel):
 def base64_to_image(base64_string: str) -> np.ndarray:
     
     try:
-        # Decode base64 to bytes
+        
         image_bytes = base64.b64decode(base64_string)
         
-        # Convert bytes to PIL Image
+        
         image = Image.open(BytesIO(image_bytes))
         
-        # Convert to RGB if needed
+        
         if image.mode != 'RGB':
             image = image.convert('RGB')
         
-        # Convert PIL Image to numpy array
+       
         image_array = np.array(image)
         
         return image_array
@@ -165,7 +165,6 @@ async def recognize_face(request: RecognizeFaceRequest):
         # Convert base64 to image array
         image_array = base64_to_image(request.imageBase64)
         
-        # Load all known encodings
         known_encodings = []
         
         for known_student in request.knownEncodings:
@@ -182,7 +181,7 @@ async def recognize_face(request: RecognizeFaceRequest):
                 message="No valid encodings loaded"
             )
         
-        # Recognize face
+        
         face_detected, matched_student_id, confidence, message = face_service.recognize_face(
             image_array,
             known_encodings
@@ -217,3 +216,7 @@ async def recognize_face(request: RecognizeFaceRequest):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during recognition: {str(e)}")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5000, reload=True)

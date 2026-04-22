@@ -102,7 +102,7 @@ class FaceRecognitionService:
             matches = face_recognition.compare_faces(encodings_only, encode_face, tolerance=0.6)
             face_distances = face_recognition.face_distance(encodings_only, encode_face)
             
-            print(f"Face distances: {face_distances}")  # Your debugging line
+            print(f"Face distances: {face_distances}")  # debugging line
             
             match_index = np.argmin(face_distances)
             
