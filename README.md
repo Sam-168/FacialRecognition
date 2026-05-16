@@ -1,118 +1,200 @@
-# Face Recognition System
+# RaySense Face Recognition Service
 
-A **real-time face recognition system** built with Python that detects, identifies, and tracks faces through live webcam input. This project focuses on **practical computer vision**, **performance optimization**, and **clean, modular code architecture**.
+A FastAPI-based face recognition microservice for the RaySense smart attendance platform.
 
----
+## Overview
 
-## 📋 Overview
+This microservice handles:
 
-This system captures live video, detects faces in real time, and matches them against a database of known individuals. It is designed to be **lightweight, extensible, and efficient**, making it suitable for use cases such as:
+- Face detection
+- Face encoding generation
+- Face verification
+- Image preprocessing
+- Attendance verification
 
-* Attendance tracking systems
-* Access control and authentication
-* Security monitoring
-* Smart applications requiring identity recognition
-
-Rather than being a purely academic demo, this project emphasizes **real-world trade-offs** between accuracy and performance.
-
----
-
-## ✨ Key Features
-
-* **Real-Time Face Detection & Recognition** – Continuous webcam processing with low latency
-* **Performance Optimized Pipeline** – Strategic image resizing to reduce computation cost
-* **Modular Design** – Clear separation of encoding, detection, and matching logic
-* **Visual Feedback** – Bounding boxes and name labels rendered on detected faces
-* **Scalable Architecture** – Easily extendable to support more faces and features
+The service receives images as Base64 strings from the Spring Boot backend and processes them using computer vision libraries.
 
 ---
 
-## 🛠️ Tech Stack
+## Architecture
 
-* **Python 3.x** – Core programming language
-* **OpenCV (cv2)** – Video capture, image processing, and drawing overlays
-* **face_recognition** – Face detection and 128-dimension encoding (built on dlib)
-* **NumPy** – High-performance numerical operations for distance calculations
-
----
-
-## ⚙️ How It Works
-
-### 1️⃣ Face Encoding Generation
-
-* Reference images are loaded from the `Images/` directory
-* Each image is converted into a **128-dimensional face encoding**
-* Encodings act as unique numerical fingerprints for each individual
+Vue.js Frontend
+↓
+Spring Boot Backend
+↓
+FastAPI Face Recognition Service
+↓
+Face Encoding Generation
 
 ---
 
-### 2️⃣ Real-Time Video Processing
+## Features
 
-For every frame captured from the webcam:
-
-* The frame is resized for faster processing
-* Faces are detected in the image
-* Face encodings are generated for detected faces
-* Encodings are compared against known encodings
-
----
-
-### 3️⃣ Face Matching
-
-* Uses **Euclidean distance** to compare face encodings
-* Selects the closest match below a defined recognition threshold
-* Ensures reliable matching while minimizing false positives
+- Base64 image processing
+- Face detection
+- Face encoding generation
+- Face matching
+- OpenCV image processing
+- FastAPI REST APIs
+- Railway deployment
 
 ---
 
-### 4️⃣ Visual Output
+## Tech Stack
 
-* Draws bounding boxes around detected faces
-* Displays the corresponding name for recognized individuals
-* Provides instant visual confirmation in real time
-
----
-
-## ⚡ Performance Considerations
-
-* **Image Resizing** – Scales images to 50% to significantly reduce processing time
-* **Vectorized Computations** – Uses NumPy for fast distance calculations
-* **Color Space Handling** – Correct RGB/BGR conversion between OpenCV and face_recognition
-
-These optimizations allow the system to maintain responsiveness even on modest hardware.
+- Python
+- FastAPI
+- OpenCV
+- face_recognition
+- NumPy
+- Pillow (PIL)
+- Uvicorn
+- Railway
 
 ---
 
-## 📁 Project Structure
+## Installation
 
-```
-├── AttendanceTracker.py    # Main real-time face recognition system
-├── Project.py              # Initial prototype / experimentation script
-└── Images/                 # Reference images for known individuals
+Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/raysense-face-service.git
 ```
 
+Navigate into the project:
+
+```bash
+cd raysense-face-service
+```
+
+Create virtual environment:
+
+```bash
+python -m venv venv
+```
+
+Activate environment:
+
+### Windows
+
+```bash
+venv\\Scripts\\activate
+```
+
+### Linux/macOS
+
+```bash
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the application:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 5000
+```
+
 ---
 
-## 🚀 Potential Extensions
+## API Endpoints
 
-This project serves as a strong foundation and can be extended with:
+### Health Check
 
-* Attendance logging with timestamps
-* Database integration (SQL / NoSQL)
-* Multi-camera support
-* Unknown face detection and alerts
-* Recognition confidence scores
-* REST API for remote access and integration
+```text
+GET /health
+```
+
+### Register Face
+
+```text
+POST /register-face
+```
+
+### Verify Face
+
+```text
+POST /verify-face
+```
 
 ---
 
-## 🎯 Technical Highlights
+## Base64 Image Processing
 
-* End-to-end computer vision pipeline implementation
-* Clear understanding of performance vs accuracy trade-offs
-* Clean, readable, and maintainable Python code
-* Practical application of machine learning concepts in a real-world context
+Example:
+
+```python
+image_bytes = base64.b64decode(base64_string)
+image = Image.open(BytesIO(image_bytes))
+image_array = np.array(image)
+```
 
 ---
 
-*Built with **Python**, **OpenCV**, and **face_recognition***
+## Face Encoding Pipeline
+
+1. Receive Base64 image
+2. Decode image
+3. Detect face location
+4. Generate face encoding
+5. Save encoding
+6. Return encoding metadata
+
+---
+
+## Deployment
+
+The service is deployed using Railway.
+
+### Deployment Steps
+
+1. Push repository to GitHub
+2. Connect repository to Railway
+3. Configure environment variables
+4. Deploy
+
+---
+
+## Challenges Solved
+
+- Base64 image decoding
+- OpenCV integration
+- Face encoding generation
+- Multi-service communication
+- Railway deployment debugging
+- Image preprocessing
+- Production troubleshooting
+
+---
+
+## Future Improvements
+
+- GPU acceleration
+- Liveness detection
+- Anti-spoofing
+- Higher accuracy models
+- Cloud storage integration
+- Batch processing
+
+---
+
+## Important Note
+
+Railway file systems are ephemeral.
+
+For production-grade persistence consider:
+
+- AWS S3
+- Cloudinary
+- Supabase Storage
+- Railway Volumes
+
+---
+
+## License
+
+This project is for educational and portfolio purposes.
