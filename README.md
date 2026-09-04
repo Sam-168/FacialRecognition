@@ -37,7 +37,7 @@ MySQL Biometric Storage
 - Persistent MySQL storage for face encodings and registration photos
 - OpenCV image processing
 - FastAPI REST APIs
-- Railway deployment
+- Render deployment
 
 ---
 
@@ -50,7 +50,8 @@ MySQL Biometric Storage
 - NumPy
 - Pillow (PIL)
 - Uvicorn
-- Railway
+- Render
+- Aiven for MySQL
 
 ---
 
@@ -150,14 +151,15 @@ image_array = np.array(image)
 
 ## Deployment
 
-The service is deployed using Railway.
+The root `render.yaml` defines a free Render web service and configures `/health` as its health check. The container binds to Render's `PORT` environment variable.
 
 ### Deployment Steps
 
-1. Push repository to GitHub
-2. Connect repository to Railway
-3. Configure environment variables
-4. Deploy
+1. Create an Aiven for MySQL service.
+2. In Render, create a Blueprint from this repository.
+3. Enter the requested Aiven connection values.
+4. Deploy and copy the service's public URL.
+5. Set that URL as `PYTHON_SERVICE_URL` on the Java backend.
 
 ---
 
