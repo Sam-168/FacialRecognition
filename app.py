@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -110,10 +111,21 @@ def root():
 @app.get("/health")
 def health_check():
     logger.info("Health check called")
-    return {
-        "status": "UP",
-        "message": "Face recognition service is running"
-    }
+    try:
+        face_service.check_storage()
+        return {
+            "status": "UP",
+            "message": "Face recognition service and biometric storage are available"
+        }
+    except Exception as error:
+        logger.error("Biometric storage health check failed: %s", error)
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "DOWN",
+                "message": "Biometric storage is unavailable"
+            },
+        )
 
 
 # ----------------------------
@@ -186,7 +198,7 @@ async def recognize_face(request: RecognizeFaceRequest):
         known_encodings = []
 
         for ks in request.knownEncodings:
-            encoding = face_service.load_encoding(ks.encodingPath)
+            encoding = face_service.load_student_encoding(ks.studentId)
 
             if encoding is not None:
                 known_encodings.append((ks.studentId, encoding))

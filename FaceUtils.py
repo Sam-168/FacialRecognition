@@ -1,20 +1,13 @@
 import cv2
 import numpy as np
 import face_recognition
-import pickle
-import os
 from typing import List, Tuple, Optional
 
+from biometric_storage import MySqlBiometricStorage
+
 class FaceRecognitionService:
-    
-    
-    def __init__(self, encodings_dir: str = "data/encodings", photos_dir: str = "data/photos"):
-        self.encodings_dir = encodings_dir
-        self.photos_dir = photos_dir
-        
-    
-        os.makedirs(encodings_dir, exist_ok=True)
-        os.makedirs(photos_dir, exist_ok=True)
+    def __init__(self, storage=None):
+        self.storage = storage or MySqlBiometricStorage.from_environment()
 
     def generate_encoding_from_image(self, image_array: np.ndarray) -> Tuple[bool, Optional[np.ndarray], str]:
         
@@ -48,33 +41,29 @@ class FaceRecognitionService:
             return False, None, f"Error processing image: {str(e)}"
 
     def save_student_encoding(self, student_id: int, encoding: np.ndarray, photo_array: np.ndarray) -> Tuple[str, str]:
-        
-        
-        encoding_path = os.path.join(self.encodings_dir, f"student_{student_id}.pkl")
-        with open(encoding_path, 'wb') as f:
-            pickle.dump(encoding, f)
-        
-        
-        photo_path = os.path.join(self.photos_dir, f"student_{student_id}.jpg")
-        
         photo_bgr = cv2.cvtColor(photo_array, cv2.COLOR_RGB2BGR)
-        cv2.imwrite(photo_path, photo_bgr)
-        
-        return encoding_path, photo_path
+        encoded, photo_buffer = cv2.imencode(
+            ".jpg",
+            photo_bgr,
+            [int(cv2.IMWRITE_JPEG_QUALITY), 90],
+        )
+        if not encoded:
+            raise ValueError("Could not encode registration photo")
 
-    def load_encoding(self, encoding_path: str) -> Optional[np.ndarray]:
-        
+        self.storage.save(student_id, encoding, photo_buffer.tobytes())
+
+        reference = f"mysql://face-biometrics/{student_id}"
+        return reference, f"{reference}/photo"
+
+    def load_student_encoding(self, student_id: int) -> Optional[np.ndarray]:
         try:
-            if not os.path.exists(encoding_path):
-                return None
-            
-            with open(encoding_path, 'rb') as f:
-                encoding = pickle.load(f)
-            return encoding
-            
+            return self.storage.load_encoding(student_id)
         except Exception as e:
-            print(f"Error loading encoding from {encoding_path}: {e}")
+            print(f"Error loading encoding for student {student_id}: {e}")
             return None
+
+    def check_storage(self) -> None:
+        self.storage.ping()
 
     def recognize_face(self, image_array: np.ndarray, known_encodings: List[Tuple[int, np.ndarray]]) -> Tuple[bool, Optional[int], float, str]:
         
@@ -118,4 +107,3 @@ class FaceRecognitionService:
         except Exception as e:
             return False, None, 0.0, f"Error during recognition: {str(e)}"
 
-    

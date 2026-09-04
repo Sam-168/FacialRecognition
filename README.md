@@ -24,7 +24,7 @@ Spring Boot Backend
 ↓
 FastAPI Face Recognition Service
 ↓
-Face Encoding Generation
+MySQL Biometric Storage
 
 ---
 
@@ -34,6 +34,7 @@ Face Encoding Generation
 - Face detection
 - Face encoding generation
 - Face matching
+- Persistent MySQL storage for face encodings and registration photos
 - OpenCV image processing
 - FastAPI REST APIs
 - Railway deployment
@@ -142,7 +143,8 @@ image_array = np.array(image)
 3. Detect face location
 4. Generate face encoding
 5. Save encoding
-6. Return encoding metadata
+6. Store the encoding and registration photo in MySQL
+7. Return encoding metadata
 
 ---
 
@@ -182,16 +184,21 @@ The service is deployed using Railway.
 
 ---
 
-## Important Note
+## Database configuration
 
-Railway file systems are ephemeral.
+The service creates and manages a `face_biometrics` table. Configure these environment variables before starting it:
 
-For production-grade persistence consider:
+```text
+MYSQL_HOST=your-database-host
+MYSQL_PORT=your-database-port
+MYSQL_DATABASE=defaultdb
+MYSQL_USER=your-database-user
+MYSQL_PASSWORD=your-database-password
+```
 
-- AWS S3
-- Cloudinary
-- Supabase Storage
-- Railway Volumes
+All database connections use TLS. If you mount the provider's CA certificate, set `MYSQL_SSL_CA` to its path to enable certificate and hostname verification.
+
+Face encodings are stored as validated 128-value binary vectors rather than Python pickle data. Registering the same student again safely replaces that student's existing encoding and photo.
 
 ---
 
